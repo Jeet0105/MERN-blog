@@ -1,6 +1,8 @@
 import { Alert, Button, Label, Spinner, TextInput } from "flowbite-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from 'react-redux'
+import { signInFailure, signInStart, signInSuccess } from '../redux/user/userSlice'
 
 function SignIn() {
   const [formdata, setFormData] = useState({
@@ -8,37 +10,35 @@ function SignIn() {
     email: '',
     password: ''
   });
-  const [errorMessage, setErrorMessage] = useState("");
-  const [loading, setLoading] = useState(false);
+  const { loading, error: errorMessage } = useSelector(state => state.user);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleChange = (e) => {
     setFormData({ ...formdata, [e.target.id]: e.target.value.trim() });
-    setErrorMessage("");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formdata.email || !formdata.password) {
-      return setErrorMessage("Please fill out all fields")
+      return dispatch(signInFailure('Please fill out all fields'));
     }
     try {
-      setLoading(true);
+      dispatch(signInStart());
       const res = await fetch('/api/auth/signin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formdata)
       });
       const data = await res.json();
-      setLoading(false);
       if (data.sucess === false) {
-        return setErrorMessage(data.message);
-      }else{
-        navigate('/')
+        dispatch(signInFailure(data.message));
+      } else {
+        dispatch(signInSuccess(data));
+        navigate('/');
       }
     } catch (error) {
-      setErrorMessage(error.message);
-      setLoading(false);
+      dispatch(signInFailure(error.message));
     }
   };
 
@@ -63,7 +63,7 @@ function SignIn() {
         {/* Right */}
         <div className="flex-1">
           <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
-      
+
             <div>
               <Label value="Your Email" />
               <TextInput
@@ -111,6 +111,7 @@ function SignIn() {
         </div>
       </div>
     </div>
-)}
+  )
+}
 
 export default SignIn
