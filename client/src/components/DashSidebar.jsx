@@ -17,12 +17,19 @@ function DashSidebar() {
     }, [location.search]);
 
     return (
-        <Sidebar className="w-full md:w-[250px]">
+        <Sidebar className="w-full md:w-[250px] md:border-r-2 md:border-[darkgray]">
             <Sidebar.Items>
                 <Sidebar.ItemGroup>
-                        <Sidebar.Item as={Link} to='/dashboard?tab=profile' active={tab === 'profile'} icon={HiUser} label={currentUser.username} labelColor='dark'>
-                            Profile
-                        </Sidebar.Item>
+                    <Sidebar.Item 
+                        as={Link}
+                        to='/dashboard?tab=profile'
+                        active={tab === 'profile'}
+                        icon={HiUser}
+                        label={currentUser.username}
+                        labelColor='dark'
+                    >
+                        Profile
+                    </Sidebar.Item>
                     <Sidebar.Item icon={HiArrowSmRight} className='cursor-pointer'>
                         Sign Out
                     </Sidebar.Item>
@@ -32,4 +39,4 @@ function DashSidebar() {
     )
 }
 
-export default DashSidebar
+export default DashSidebar;
