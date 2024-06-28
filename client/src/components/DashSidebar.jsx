@@ -20,11 +20,9 @@ function DashSidebar() {
         <Sidebar className="w-full md:w-[250px]">
             <Sidebar.Items>
                 <Sidebar.ItemGroup>
-                    <Link to='/dashboard?tab=profile'>
-                        <Sidebar.Item active={tab === 'profile'} icon={HiUser} label={currentUser.username} labelColor='dark'>
+                        <Sidebar.Item as={Link} to='/dashboard?tab=profile' active={tab === 'profile'} icon={HiUser} label={currentUser.username} labelColor='dark'>
                             Profile
                         </Sidebar.Item>
-                    </Link>
                     <Sidebar.Item icon={HiArrowSmRight} className='cursor-pointer'>
                         Sign Out
                     </Sidebar.Item>
