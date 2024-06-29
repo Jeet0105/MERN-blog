@@ -50,6 +50,7 @@ function DashProfile() {
                 setImageFileUploadingProgress(null);
                 setImageFile(null);
                 setImageFileUrl(null);
+                console.log(error);
             },
             () => {
                 getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {

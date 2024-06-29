@@ -58,7 +58,7 @@ export const signin = async (req, res, next) => {
             { expiresIn: '5h' }
         );
 
-        return res.status(200).cookie('access token', token, { httpOnly: true }).json(rest)
+        return res.status(200).cookie('access_token', token, { httpOnly: true }).json(rest)
     } catch (error) {
         next(error)
     }
@@ -75,7 +75,7 @@ export const google = async (req, res, next) => {
                 { expiresIn: '5h' }
             );
             const { password: pass, ...rest } = user._doc;
-            return res.status(200).cookie('access token', token, { httpOnly: true }).json(rest);
+            return res.status(200).cookie('access_token', token, { httpOnly: true }).json(rest);
         } else {
             const generatedPassword = Math.random().toString(36).slice(-8);
             const hashedPassword = await bcryptjs.hash(generatedPassword, 10);
@@ -93,7 +93,7 @@ export const google = async (req, res, next) => {
                 { expiresIn: '5h' }
             );
             const { password: pass, ...rest } = newUser._doc;
-            return res.status(200).cookie('access token', token, { httpOnly: true }).json(rest);
+            return res.status(200).cookie('access_token', token, { httpOnly: true }).json(rest);
         }
     } catch (error) {
         console.log(error);
