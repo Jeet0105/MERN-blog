@@ -1,4 +1,5 @@
 import { Alert, Button, TextInput, Modal } from "flowbite-react";
+import { Link } from 'react-router-dom';
 import { useEffect, useRef, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { getDownloadURL, getStorage, ref, uploadBytesResumable } from "firebase/storage";
@@ -6,10 +7,10 @@ import { app } from "../firebase";
 import 'react-circular-progressbar/dist/styles.css';
 import { CircularProgressbar } from 'react-circular-progressbar';
 import { HiOutlineExclamationCircle } from "react-icons/hi";
-import { updateFailure, updateStart, updateSuccess, deleteUserFailure, deleteUserStart, deleteUserSuccess,signoutSucess } from "../redux/user/userSlice";
+import { updateFailure, updateStart, updateSuccess, deleteUserFailure, deleteUserStart, deleteUserSuccess, signoutSucess } from "../redux/user/userSlice";
 
 function DashProfile() {
-    const { currentUser, error } = useSelector(state => state.user);
+    const { currentUser, error, loading } = useSelector(state => state.user);
     const [imageFile, setImageFile] = useState(null);
     const [imageFileUrl, setImageFileUrl] = useState(null);
     const [imageFileUploadingProgress, setImageFileUploadingProgress] = useState(null);
@@ -140,7 +141,7 @@ function DashProfile() {
             const data = await res.json();
             if (!res.ok) {
                 console.log(data.message);
-            }else{
+            } else {
                 dispatch(signoutSucess());
             }
         } catch (error) {
@@ -194,9 +195,22 @@ function DashProfile() {
                         {imageFileUploadError}
                     </div>
                 )}
-                <Button type="submit" gradientDuoTone='purpleToBlue' outline>
-                    Update
+                <Button disabled={loading || imageFileUploading} type="submit" gradientDuoTone='purpleToBlue' outline>
+                    {loading ? "Loading..." : "Update"}
                 </Button>
+                {
+                    currentUser.isAdmin && (
+                        <Link to='/create-post'>
+                            <Button
+                                type="button"
+                                gradientDuoTone="purpleToPink"
+                                className="w-full"
+                            >
+                                Create a post
+                            </Button>
+                        </Link>
+                    )
+                }
                 {
                     updateUserSuccess && <Alert color='success' className="my-3">{updateUserSuccess}</Alert>
                 }
@@ -207,7 +221,7 @@ function DashProfile() {
                     <span onClick={() => setShowModal(true)} className="cursor-pointer">Delete Account</span>
                     <span onClick={handleSignout} className="cursor-pointer">Sign Out</span>
                 </div>
-                {error && <Alert color='success' className="my-3">{error}</Alert> }
+                {error && <Alert color='success' className="my-3">{error}</Alert>}
             </form>
             <Modal show={showModal} onClick={() => setShowModal(false)} popup size='md'>
                 <Modal.Header />
