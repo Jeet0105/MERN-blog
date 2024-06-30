@@ -1,23 +1,25 @@
-import { Alert, Button, TextInput } from "flowbite-react";
+import { Alert, Button, TextInput, Modal } from "flowbite-react";
 import { useEffect, useRef, useState } from "react";
-import { useSelector,useDispatch } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { getDownloadURL, getStorage, ref, uploadBytesResumable } from "firebase/storage";
 import { app } from "../firebase";
 import 'react-circular-progressbar/dist/styles.css';
 import { CircularProgressbar } from 'react-circular-progressbar';
-import { updateFailure, updateStart, updateSuccess } from "../redux/user/userSlice";
+import { HiOutlineExclamationCircle } from "react-icons/hi";
+import { updateFailure, updateStart, updateSuccess, deleteUserFailure, deleteUserStart, deleteUserSuccess } from "../redux/user/userSlice";
 
 function DashProfile() {
-    const { currentUser } = useSelector(state => state.user);
+    const { currentUser, error } = useSelector(state => state.user);
     const [imageFile, setImageFile] = useState(null);
     const [imageFileUrl, setImageFileUrl] = useState(null);
     const [imageFileUploadingProgress, setImageFileUploadingProgress] = useState(null);
     const [imageFileUploadError, setImageFileUploadError] = useState(null);
     const [imageFileUploading, setimageFileUploading] = useState(false);
-    const [updateUserSuccess,setUpdateUserSuccess] = useState(null);
-    const [updateUserError,setUpdateUserError] = useState(null);
+    const [updateUserSuccess, setUpdateUserSuccess] = useState(null);
+    const [updateUserError, setUpdateUserError] = useState(null);
+    const [formData, setFormData] = useState({});
+    const [showModal, setShowModal] = useState(false);
     const filePickerRef = useRef();
-    const [formData, setFormData] = useState({})
     const dispatch = useDispatch();
 
     const handleImageChange = (e) => {
@@ -88,18 +90,18 @@ function DashProfile() {
         }
         try {
             dispatch(updateStart());
-            const res = await fetch(`/api/user/update/${currentUser._id}`,{
+            const res = await fetch(`/api/user/update/${currentUser._id}`, {
                 method: 'PUT',
-                headers:{
+                headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(formData) 
+                body: JSON.stringify(formData)
             });
             const data = await res.json();
-            if(!res.ok){
+            if (!res.ok) {
                 dispatch(updateFailure(data.message));
                 setUpdateUserError(data.message);
-            }else{
+            } else {
                 dispatch(updateSuccess(data));
                 setUpdateUserSuccess("User's profile updated sucessfully")
             }
@@ -108,6 +110,24 @@ function DashProfile() {
             dispatch(updateFailure(error.message));
         }
     };
+
+    const handleDeleteUser = async () => {
+        setShowModal(false);
+        try {
+            dispatch(deleteUserStart());
+            const res = await fetch(`api/user/delete/${currentUser._id}`,
+                { method: 'DELETE' }
+            );
+            const data = await res.json();
+            if (!res.ok) {
+                dispatch(deleteUserFailure(data.message));
+            } else {
+                dispatch(deleteUserSuccess());
+            }
+        } catch (error) {
+            dispatch(deleteUserFailure(error.message));
+        }
+    }
 
     return (
         <div className='md:ml-8 mx-auto p-3 w-full'>
@@ -165,10 +185,26 @@ function DashProfile() {
                     updateUserError && <Alert color='failure' className="my-3">{updateUserError}</Alert>
                 }
                 <div className="text-red-700 flex justify-between md:w-[33%]">
-                    <span className="cursor-pointer">Delete Account</span>
+                    <span onClick={() => setShowModal(true)} className="cursor-pointer">Delete Account</span>
                     <span className="cursor-pointer">Sign Out</span>
                 </div>
+                {error && <Alert color='success' className="my-3">{error}</Alert> }
             </form>
+            <Modal show={showModal} onClick={() => setShowModal(false)} popup size='md'>
+                <Modal.Header />
+                <Modal.Body>
+                    <div className="text-center">
+                        <HiOutlineExclamationCircle className="h-14 w-14 text-gray-400 mb-4 mx-auto dark:text-gray-200" />
+                        <h3 className="text-red-400 mb-5">Are you sure you want to delete your account</h3>
+
+                        <div className="flex justify-center gap-4">
+                            <Button color='failure' onClick={handleDeleteUser}>Yes I&apos;m sure</Button>
+                            <Button color='gray' onClick={() => setShowModal(false)}>No, Cancle</Button>
+                        </div>
+
+                    </div>
+                </Modal.Body>
+            </Modal>
         </div>
     );
 }
