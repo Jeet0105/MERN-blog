@@ -4,6 +4,7 @@ import { AiOutlineSearch } from 'react-icons/ai';
 import { FaMoon, FaSun } from 'react-icons/fa';
 import { useSelector, useDispatch } from 'react-redux';
 import { toggleTheme } from '../redux/theme/themeSlice';
+import { signoutSucess } from '../redux/user/userSlice';
 
 export default function Header() {
   const path = useLocation().pathname;
@@ -13,6 +14,25 @@ export default function Header() {
 
   const changeTheme = () => {
     dispatch(toggleTheme());
+  }
+
+  const handleSignout = async () => {
+    try {
+      const res = await fetch('/api/user/signout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        console.log(data.message);
+      } else {
+        dispatch(signoutSucess());
+      }
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   return (
@@ -62,7 +82,7 @@ export default function Header() {
                 <Dropdown.Item>Profile</Dropdown.Item>
               </Link>
               <Dropdown.Divider />
-              <Dropdown.Item>Sign Out</Dropdown.Item>
+              <Dropdown.Item onClick={handleSignout}>Sign Out</Dropdown.Item>
             </Dropdown>
           ) : (
             <Link to='/sign-in'>
