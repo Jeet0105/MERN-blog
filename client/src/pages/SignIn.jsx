@@ -16,7 +16,7 @@ function SignIn() {
   const dispatch = useDispatch();
 
   const handleChange = (e) => {
-    setFormData({ ...formdata, [e.target.id]: e.target.value.trim() });
+    setFormData({ ...formdata, [e.target.id]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
@@ -39,6 +39,7 @@ function SignIn() {
         navigate('/');
       }
     } catch (error) {
+      console.log(error);
       dispatch(signInFailure(error.message));
     }
   };
