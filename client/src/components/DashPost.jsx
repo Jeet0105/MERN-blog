@@ -94,7 +94,7 @@ function DashPost() {
                         setShowModal(true)
                         setPostId(post._id)
                       }} className="font-medium text-red-500 cursor-pointer hover:underline">Delete</span></Table.Cell>
-                      <Table.Cell><Link className="text-teal-500 font-medium hover:underline" to={`/update-post/${post.slug}`}><span>Edit</span></Link></Table.Cell>
+                      <Table.Cell><Link className="text-teal-500 font-medium hover:underline" to={`/update-post/${post._id}`}><span>Edit</span></Link></Table.Cell>
                     </Table.Row>
                   </Table.Body>
                 ))
