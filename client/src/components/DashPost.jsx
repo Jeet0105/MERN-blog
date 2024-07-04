@@ -6,7 +6,8 @@ import { Link } from "react-router-dom";
 function DashPost() {
 
   const { currentUser } = useSelector((state) => state.user);
-  const [userPost, setUserPost] = useState({});
+  const [userPost, setUserPost] = useState([]);
+  const [showMore, setShowMore] = useState(true);
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -15,19 +16,37 @@ function DashPost() {
         const data = await res.json();
         if (res.ok) {
           setUserPost(data.posts);
+          if (data.posts.length < 9) {
+            setShowMore(false);
+          }
         }
       } catch (error) {
         console.log(error);
       }
     }
-    if (currentUser.isAdmin) fetchPosts();
-  }, [currentUser._id])
+    if ( currentUser.isAdmin) fetchPosts();
+  }, [currentUser._id, currentUser.isAdmin]);
 
+  const handleShowMore = async () => {
+    const startIndex = userPost.length;
+    try {
+      const res = await fetch(`/api/post/getposts?userId=${currentUser._id}&startIndex=${startIndex}`);
+      const data = await res.json();
+      if (res.ok) {
+        setUserPost((prev) => [...prev, ...data.posts]);
+        if (data.posts.length < 9) {
+          setShowMore(false);
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   return (
     <div className="md:ml-14 w-full table-auto overflow-x-scroll md:mx-auto p-3 scrollbar scrollbar-track-slate-100 scrollbar-thumb-slate-300 dark:scrollbar-track-slate-700 dark:scrollbar-thumb-slate-500">
       {
-        currentUser.isAdmin && userPost.length > 0 ? (
+        currentUser && currentUser.isAdmin && userPost.length > 0 ? (
           <>
             <Table hoverable className="shadow-md">
               <Table.Head>
@@ -57,6 +76,12 @@ function DashPost() {
               }
 
             </Table>
+
+            {
+              showMore && (
+                <button onClick={handleShowMore} className="w-full text-teal-500 self-center text-sm py-7">Show More</button>
+              )
+            }
           </>
         ) : (
           <p>You have no post yet</p>
@@ -66,4 +91,4 @@ function DashPost() {
   )
 }
 
-export default DashPost
+export default DashPost;
