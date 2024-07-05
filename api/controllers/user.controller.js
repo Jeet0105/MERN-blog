@@ -99,7 +99,7 @@ export const getUsers = async (req, res, next) => {
         const sortDirection = (req.query.sortDirection) === 'asc' ? 1 : -1;
 
 
-        const user = await User.find({})
+        const users = await User.find({})
             .sort({ createdAt: sortDirection })
             .skip(startIndex)
             .limit(limit)
@@ -116,6 +116,12 @@ export const getUsers = async (req, res, next) => {
         );
 
         const lastMonthUser = await User.countDocuments({ createdAt: { $gte: oneMonthAgo } });
+
+        res.status(200).json({
+            users,
+            totalUsers,
+            lastMonthUser
+        })
     } catch (error) {
         next(error);
     }
