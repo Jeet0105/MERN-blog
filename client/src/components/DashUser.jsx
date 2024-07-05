@@ -47,7 +47,20 @@ function DashUser() {
     }
 
     const handleDelete = async () => {
-
+        try {
+            const res = await fetch(`/api/user/delete/${userId}`,{
+                method:'DELETE'
+            });
+            const data = await res.json();
+            if (res.ok) {
+                setUsers((prev)=>prev.filter((user)=>user._id !== userId));
+                showModal(false);
+            } else{
+                console.log(data.message);
+            }
+        } catch (error) {
+            console.log(error);
+        }
     }
 
     return (
