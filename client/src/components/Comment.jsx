@@ -4,7 +4,7 @@ import { FaThumbsUp } from "react-icons/fa";
 import { useSelector } from 'react-redux';
 import { Button, Textarea } from "flowbite-react";
 
-export default function Comment({ comment, onLike, onEdit }) {
+export default function Comment({ comment, onLike, onEdit, onDelete }) {
     const [user, setUser] = useState({});
     const [isEditing, setIsEditing] = useState(false);
     const [editedContent, setEditedContent] = useState(comment.content);
@@ -60,7 +60,11 @@ export default function Comment({ comment, onLike, onEdit }) {
             </div>
             {isEditing ? (
                 <>
-                    <Textarea value={editedContent} onChange={(e) => setEditedContent(e.target.value)} className="mb-2" />
+                    <Textarea
+                        value={editedContent}
+                        onChange={(e) => setEditedContent(e.target.value)}
+                        className="mb-2"
+                    />
                     <div className="flex items-center justify-end gap-3 text-sm">
                         <Button type="button" size='sm' gradientDuoTone='purpleToBlue' onClick={handleSave}>Save</Button>
                         <Button type="button" size='sm' gradientDuoTone='purpleToBlue' outline onClick={() => setIsEditing(false)}>Cancel</Button>
@@ -70,14 +74,33 @@ export default function Comment({ comment, onLike, onEdit }) {
                 <>
                     <p className="ml-14 text-gray-500 mb-2">{comment.content}</p>
                     <div className="flex items-center gap-2 max-w-fit">
-                        <button type="button" onClick={() => onLike(comment._id)} className={`ml-14 hover:text-blue-500 ${currentUser && comment.likes.includes(currentUser._id) ? 'text-blue-500' : 'text-gray-400'}`}>
+                        <button
+                            type="button"
+                            onClick={() => onLike(comment._id)}
+                            className={`ml-14 hover:text-blue-500 ${currentUser && comment.likes.includes(currentUser._id) ? 'text-blue-500' : 'text-gray-400'}`}
+                        >
                             <FaThumbsUp className="text-sm" />
                         </button>
                         <p className="text-gray-400 text-xs">
                             {comment.numberOfLikes > 0 && `${comment.numberOfLikes} ${comment.numberOfLikes === 1 ? "Like" : "Likes"}`}
                         </p>
                         {currentUser && (currentUser._id === comment.userId || currentUser.isAdmin) && (
-                            <button type="button" className="text-gray-400 hover:text-blue-500" onClick={handleEdit}>Edit</button>
+                            <>
+                                <button
+                                    type="button"
+                                    className="text-gray-400 hover:text-blue-500"
+                                    onClick={handleEdit}
+                                >
+                                    Edit
+                                </button>
+                                <button
+                                    type="button"
+                                    className="text-gray-400 hover:text-red-500"
+                                    onClick={() => onDelete(comment._id)}
+                                >
+                                    Delete
+                                </button>
+                            </>
                         )}
                     </div>
                 </>

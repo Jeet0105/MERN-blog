@@ -1,14 +1,17 @@
-import { Alert, Button, Textarea } from "flowbite-react";
+import { Alert, Button, Modal, Textarea } from "flowbite-react";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import Comment from "./Comment";
+import { HiOutlineExclamationCircle } from "react-icons/hi";
 
 export default function CommentSection({ postId }) {
     const { currentUser } = useSelector((state) => state.user);
     const [comment, setComment] = useState('');
     const [comments, setComments] = useState([]);
     const [commentError, setCommentError] = useState('');
+    const [showModal, setShowModal] = useState(false);
+    const [commentToDelete, setCommentToDelete] = useState(null);
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
@@ -89,11 +92,29 @@ export default function CommentSection({ postId }) {
         }
     };
 
-    const handelEdit = async (Comment, editedContent) => {
+    const handleEdit = (comment, editedContent) => {
         setComments(
             comments.map((c) =>
-                c._id === Comment._id ? { ...c, content: editedContent } : c
-            ))
+                c._id === comment._id ? { ...c, content: editedContent } : c
+            )
+        );
+    };
+
+    const handleDelete = async () => {
+        if (!commentToDelete) return;
+        try {
+            const res = await fetch(`/api/comment/deleteComment/${commentToDelete}`, {
+                method: 'DELETE'
+            });
+
+            if (res.ok) {
+                setComments(comments.filter(comment => comment._id !== commentToDelete));
+                setShowModal(false);
+                setCommentToDelete(null);
+            }
+        } catch (error) {
+            console.error(error);
+        }
     };
 
     return (
@@ -146,10 +167,32 @@ export default function CommentSection({ postId }) {
                         </div>
                     </div>
                     {comments.map((comment) => (
-                        <Comment key={comment?._id} comment={comment} onLike={handleLike} onEdit={handelEdit} />
+                        <Comment
+                            key={comment?._id}
+                            comment={comment}
+                            onLike={handleLike}
+                            onEdit={handleEdit}
+                            onDelete={(commentId) => {
+                                setShowModal(true);
+                                setCommentToDelete(commentId);
+                            }}
+                        />
                     ))}
                 </>
             )}
+            <Modal show={showModal} onClose={() => setShowModal(false)} popup size='md'>
+                <Modal.Header />
+                <Modal.Body>
+                    <div className="text-center">
+                        <HiOutlineExclamationCircle className="h-14 w-14 text-gray-400 mb-4 mx-auto dark:text-gray-200" />
+                        <h3 className="text-red-400 mb-5">Are you sure you want to delete this comment?</h3>
+                        <div className="flex justify-center gap-4">
+                            <Button color='failure' onClick={handleDelete}>Yes, I'm sure</Button>
+                            <Button color='gray' onClick={() => setShowModal(false)}>No, Cancel</Button>
+                        </div>
+                    </div>
+                </Modal.Body>
+            </Modal>
         </div>
     );
 }
