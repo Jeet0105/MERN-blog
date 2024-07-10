@@ -3,12 +3,14 @@ import { Link, useParams } from 'react-router-dom'
 import { Button, Spinner } from 'flowbite-react'
 import CallToAction from '../components/CallToAction';
 import CommentSection from '../components/CommentSection';
+import PostCard from '../components/PostCard';
 
 function PostPage() {
     const { postSlug } = useParams();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(false);
     const [post, setPost] = useState(null);
+    const [recentPost, setRecentPost] = useState(null);
 
     useEffect(() => {
         const fecthPost = async () => {
@@ -32,6 +34,21 @@ function PostPage() {
         fecthPost();
     }, [postSlug])
 
+    useEffect(() => {
+        try {
+            const fetchRecentPost = async () => {
+                const res = await fetch('/api/post/getposts?limit=3');
+                const data = await res.json();
+                if (res.ok) {
+                    setRecentPost(data.posts);
+                }
+            }
+            fetchRecentPost();
+        } catch (error) {
+            console.log(error);
+        }
+    }, [])
+
     if (loading) return (
         <div className="min-h-screen flex justify-center items-center">
             <Spinner size="xl" />
@@ -49,7 +66,7 @@ function PostPage() {
                 <span>{post && new Date(post.createdAt).toLocaleDateString()}</span>
                 <span className='italic'>{post && (post.content.length / 1000).toFixed(0)} mins read</span>
             </div>
-            <div className='p-3 max-w-2xl mx-auto w-full post-content' dangerouslySetInnerHTML={{__html : post && post.content}}>
+            <div className='p-3 max-w-2xl mx-auto w-full post-content' dangerouslySetInnerHTML={{ __html: post && post.content }}>
             </div>
 
             <div className='max-w-4xl mx-auto w-full'>
@@ -57,8 +74,20 @@ function PostPage() {
             </div>
 
             <CommentSection postId={post?._id} />
+
+            <div className='flex flex-col justify-center items-center mb-5'>
+                <h1 className='text-xl mt-5'>Recent articles</h1>
+                <div className='flex flex-col md:flex-row items-center gap-6 justify-center items-center'>
+                    {
+                        recentPost && 
+                            recentPost.map((post)=> (
+                                <PostCard key={post._id} post={post} />
+                            ))
+                    }
+                </div>
+            </div>
         </main>
     )
 }
 
-export default PostPage
+export default PostPage;
