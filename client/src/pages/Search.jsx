@@ -64,7 +64,7 @@ function Search() {
     }
 
     const handleShowMore = async () => {
-        const numberOfPosts = posts.length();
+        const numberOfPosts = posts.length;
         const startIndex = numberOfPosts;
         const urlParams = new URLSearchParams(location.search);
         urlParams.set('startIndex',startIndex);
@@ -76,7 +76,7 @@ function Search() {
             } else {
                 const data = await res.json();
                 setPosts([...posts,...data.posts]);
-                if (data.posts.label === 9) {
+                if (data.posts.length === 9) {
                     setShowMore(true);
                 } else {
                     setShowMore(false);
