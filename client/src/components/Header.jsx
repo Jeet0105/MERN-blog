@@ -54,9 +54,8 @@ export default function Header() {
     const searchQuery = urlParams.toString();
     navigate(`/search?${searchQuery}`);
   }
-
   return (
-    <Navbar className='border-b-2'>
+    <Navbar className='border-b-2 sticky top-0 z-20' style={{ backgroundColor: theme === 'dark' ? 'rgba(31, 41, 55, 0.8)' : 'rgba(255, 255, 255, 0.8)'}}> 
       <Link
         to='/'
         className='self-center whitespace-nowrap text-sm sm:text-xl font-semibold dark:text-white'
